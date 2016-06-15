@@ -1,0 +1,86 @@
+$canvas-size: 450px;
+$line-stroke: 6px;
+$line-length: 200px;
+$lines: 36;
+$animation-duration: 4s;
+$colors: aqua gold tomato;
+
+@function on-circle($r, $pos, $tot) {
+    $deg: ($pos - 1) * 360 / $tot - 90;
+    $rad: $deg * pi() / 180;
+    $x: ($r * cos($rad));
+    $y: ($r * sin($rad));
+    @return ($x, $y);
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #171723;
+}
+
+.canvas {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: $canvas-size;
+    max-height: $canvas-size;
+}
+
+@keyframes flow {
+    0%, 100% {
+        height: $line-length;
+        transform: rotate(0deg);
+    }
+    25% {
+        height: $line-length * 0.6;
+        transform: rotate(-60deg);
+    }
+    50% {
+        height: $line-length * 1.05;
+        transform: rotate(-20deg);
+    }
+    75% {
+        height: $line-length;
+        transform: rotate(35deg);
+    }
+}
+
+.line {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: $line-stroke;
+    height: $line-stroke;
+
+    &::before {
+        content: '';
+        display: block;
+        width: 100%;
+        height: $line-length;
+        border-radius: 3px;
+        transform-origin: 50% 0;
+        animation: flow $animation-duration infinite ease-in-out;
+    }
+}
+
+@each $color in $colors {
+    $i: index($colors, $color);
+
+    .line--#{'' + $color}::before {
+        background-color: $color;
+        animation-delay: (($animation-duration * 4) / $lines) * $i;
+    }
+}
+
+@for $l from 1 through $lines {
+    $pos: on-circle($line-length, $l, $lines);
+
+    .line:nth-child(#{$l}) {
+        transform: translate(nth($pos, 1), nth($pos, 2)) rotate(360deg * ($l - 1) / $lines);
+    }
+}
